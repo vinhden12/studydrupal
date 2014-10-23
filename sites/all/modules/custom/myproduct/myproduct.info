@@ -1,0 +1,7 @@
+name = my product
+description = new my products
+package = study drupal
+files[] = myproduct.install
+files[]= myproduct.module
+core = 7.x
+version = 1.x

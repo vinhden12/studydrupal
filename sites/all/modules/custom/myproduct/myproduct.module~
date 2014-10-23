@@ -1,0 +1,112 @@
+<?php
+/**
+*@ file
+* Implement my module
+*/
+
+/**
+* Implement hook_menu
+*/
+
+function myproduct_menu(){
+$items = array();
+$items['myproduct']= array(
+'title' => 'Add new product',
+'description' => t('Add new product'),
+'page callback' => 'drupal_get_form',
+'page arguments' => array('myproduct_form'),
+'access callback'=>TRUE,
+'type' => MENU_NORMAL_ITEM,
+'weight' =>0,
+);
+return $items;
+}
+
+function myproduct_form($form,&$form_state) {
+	$form['product_name'] = array(
+	'#title' => t('Product Name'),
+	'#type' => 'textfield',
+	'#required' => TRUE,
+	'#description' => t('Please enter product name.'),
+	);
+ 
+	// Product picture
+	$form['picture'] = array('#type' => 'fieldset',
+                               '#title' => t('Product image'));
+
+    	$form['picture']['picture_upload'] = array('#type' => 'file', 
+                '#title' => t('Upload product image'),
+                 '#size' => 48, 
+		'#description' => t('Maximum dimensions are %dimensions and the maximum size is %size kB.', array('%dimensions' => 	'250x250', '%size' => '30')));
+ 
+    	$form['#validate'][] = 'product_validate_picture';
+ 
+	$form['submit'] = array(
+	'#type' => 'submit',
+	'#value' => t('Submit'),
+	);
+ 
+	//$form['#redirect'] = 'product_list';	
+	$form['#attributes']['enctype'] = 'multipart/form-data';
+ 
+	return $form;
+}
+
+function myproduct_form_submit($form, &$form_state) {
+	//$form_values = $form['values'];
+ 
+	//$product_name = trim($form_values['product_name']);
+       $product_name = trim($form_state['values']['product_name']);
+
+	//$image_path = $form_values['picture'];
+       $img_path = $form_state['values']['picture_upload'];
+
+  /*
+	$query = "INSERT INTO product(product_name, image_path) VALUES('%s', '%s')";
+	db_query($query, $product_name, $image_path); */
+ 
+ $pid = db_insert('product')
+->fields(array(
+'pname' => $product_name,
+'img_path' => $img_path,
+))
+->execute();
+ 
+	drupal_set_message(t('Product has been added successfully.'));
+}
+
+function product_validate_picture(&$form, &$form_state) {
+	$validators = array(
+    		'file_validate_is_image' => array(),
+	    	'file_validate_image_resolution' => array('250x250')),
+    		'file_validate_size' => array(30 * 1024),
+  	);
+  	if ($file = file_save_upload('picture_upload', $validators)) {
+    		// Remove the old picture.
+    		if (isset($form_state['values']['_product']->image_path) && file_exists($form_state['values']['_product']->image_path)){
+      			file_delete($form_state['values']['_product']->image_path);
+    		}
+ 
+		$pid = 0;
+		if (!isset($form_state['values']['pid'])) { // Execute in case of new product
+			$query = "SHOW TABLE STATUS LIKE 'product'";
+			$rs = db_query($query);
+			$row = db_fetch_object($rs);
+ 
+			$pid = isset($row->Auto_increment) ? $row->Auto_increment : 0;
+		}
+		else {
+			$pid = $form_state['values']['pid'];
+		}
+ 
+		$info = image_get_info($file->filepath);
+    		$destination = variable_get('product_picture_path', 'product_pictures') .'/picture-'. $productid .'.'. $info['extension'];
+    		if (file_copy($file, $destination, FILE_EXISTS_REPLACE)) {
+      			$form_state['values']['picture'] = $file->filepath;
+    		}
+    		else {
+      			form_set_error('picture_upload', t("Failed to upload the picture image; the %directory directory doesn't exist or is not writable.", 
+                        array('%directory' => variable_get('product_picture_path', 'product_pictures'))));
+    		}
+  	}
+}

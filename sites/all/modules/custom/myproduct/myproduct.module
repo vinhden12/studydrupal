@@ -1,0 +1,78 @@
+<?php
+/**
+*@ file
+* Implement my module
+*/
+
+/**
+* Implement hook_menu
+*/
+
+function myproduct_menu(){
+$items = array();
+$items['myproduct']= array(
+'title' => 'Add new product',
+'description' => t('Add new product'),
+'page callback' => 'drupal_get_form',
+'page arguments' => array('myproduct_form'),
+'access callback'=>TRUE,
+'type' => MENU_NORMAL_ITEM,
+'weight' =>0,
+);
+return $items;
+}
+
+function myproduct_form($form,&$form_state) {
+	$form['product_name'] = array(
+	'#title' => t('Product Name'),
+	'#type' => 'textfield',
+	'#required' => TRUE,
+	'#description' => t('Please enter product name.'),
+	);
+ 
+	// Product picture
+	$form['picture'] = array('#type' => 'fieldset',
+                               '#title' => t('Product image'));
+
+    	$form['picture']['picture_upload'] = array('#type' => 'file', 
+                '#title' => t('Upload product image'),
+                 '#size' => 48, 
+		'#description' => t('Maximum dimensions are %dimensions and the maximum size is %size kB.', array('%dimensions' => 	'250x250', '%size' => '30')));
+ 
+    	//$form['#validate'][] = 'product_validate_picture';
+ 
+	$form['submit'] = array(
+	'#type' => 'submit',
+	'#value' => t('Submit'),
+	);
+ 
+	//$form['#redirect'] = 'product_list';	
+	$form['#attributes']['enctype'] = 'multipart/form-data';
+ 
+	return $form;
+}
+
+function myproduct_form_submit($form, &$form_state) {
+	//$form_values = $form['values'];
+ 
+	//$product_name = trim($form_values['product_name']);
+       $product_name = trim($form_state['values']['product_name']);
+
+	//$image_path = $form_values['picture'];
+       $img_path = $form_state['values']['picture_upload'];
+
+  /*
+	$query = "INSERT INTO product(product_name, image_path) VALUES('%s', '%s')";
+	db_query($query, $product_name, $image_path); */
+ 
+ $pid = db_insert('product')
+->fields(array(
+'pname' => $product_name,
+'img_path' => $img_path,
+))
+->execute();
+ 
+	drupal_set_message(t('Product has been added successfully.'));
+}
+
+

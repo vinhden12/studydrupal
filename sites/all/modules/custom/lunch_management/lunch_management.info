@@ -1,0 +1,11 @@
+name = Lunch Management
+description =  A project for lunch management
+package  = "studying drupal"
+core = 7.x
+version = 1.x
+files[] = lunch_management.module
+files[] = lunchmanagement.install
+files[] = lunch_management.inc
+files[] = views/lunch_management.views.inc
+
+

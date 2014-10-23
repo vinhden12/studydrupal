@@ -1,0 +1,9 @@
+insert array of values to database
+
+$insert_banned_emails = db_insert('banned_users')->fields(array('email'));
+foreach ($user_emails as $key => $value) {
+  $insert_banned_emails->values(array(
+    'email' => $value,
+  ));               
+}
+$insert_banned_emails->execute();

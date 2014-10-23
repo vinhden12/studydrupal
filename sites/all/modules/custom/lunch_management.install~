@@ -1,0 +1,140 @@
+<?php
+/**
+* @file
+* Implements hook_schema()
+*/
+
+function lunch_management_schema() {
+  $schema = array();
+  $schema['ftype'] = array(
+  'description' => 'type of food',
+  'fields'=>array(
+     'typeid' => array(
+      'description' => 'primary key',
+      'type'=> 'serial',
+      'unsigned'=> TRUE,
+      'not null' => TRUE,),
+      'tname'=> array(
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,),
+    'uid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Primary Key: {users}.uid for user.',
+      ),
+      'tdescript' => array(
+        'description' => 'description for type',
+        'type'=> 'varchar',
+        'length'=> 255,),),
+       'primary key' => array('typeid'),
+       'foreign keys' => array(
+        'sup_type' => array(
+        'table' => 'users',
+        'columns' => array('uid' => 'uid'),
+      ),),);
+  $schema['tbl_lunch'] = array(
+    'description' => 'It is my table.',
+    'fields' => array(
+      'foodid' => array(
+        'description' => 'My primary key for table.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+     'typeid' => array(
+      'description' => 'primary key',
+      'type'=> 'int',
+      'unsigned'=> TRUE,
+      'not null' => TRUE,),
+      'fitem' => array(
+        'description' => 'A field to storing item name.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+ 
+      'fdescript' => array(
+        'description' => 'A field for storing a description for item',
+        'type' => 'text',
+      ),
+      'fimage' => array(
+        'description' => 'Image of items.',
+        'type' => 'int',
+        'not null' => FALSE,
+        'unsigned' => TRUE,
+      ),
+      'uid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Primary Key: {users}.uid for user.',
+      ),
+      'price' => array(
+         'description' => 'price of item',
+         'type' => 'float',
+         'unsigned' => TRUE,
+         'size' => 'normal',
+         'not null' => TRUE, 
+       ),
+    ),
+    'primary key' => array('foodid'),
+     'foreign key' => array('typeid'=>array(
+      'table' => 'ftype',
+      'columns'=> array('typeid'=>'typeid')),
+      'tuid'=>array(
+       'table'=>'users',
+       'columns'=>array('uid'=>'uid')),),
+  //add uid to this table for select food by supplier
+  );
+
+  $schema['tbl_order'] = array(
+   'description'=>'table for storing order data',
+   'fields'=>array(
+    'orderId'=>array(
+     'type'=>'serial',
+     'unsigned'=>TRUE,
+     'not null'=>TRUE,),
+     'uid' => array(
+     'type' => 'int',
+     'unsigned' => TRUE,
+     'not null' => TRUE,
+     'default' => 0,
+     'description' => 'Primary Key: {users}.uid for user.',
+      ),
+     'odate'=>array(
+      'type'=>'datetime',
+      'not null'=>TRUE,
+      'description'=>'order date',),
+      'status'=>array(
+      'type'=>'int',
+      'not null'=>TRUE,
+      'unsigned'=>TRUE,
+      'default'=>0,),
+      ),
+      'primary key'=>array('orderId'),
+      'foreign key'=>array(
+      'uid'=>array(
+      'table'=>'users',
+      'columns'=>array('uid'=>'uid')),
+   ),);
+  return $schema;
+}
+
+/**
+* Implements hook_install()
+*/
+/**
+function testdb_install() {
+  db_insert('mytb')->fields(array(
+    'fe_id' => 0,
+    'mynumber' => 0,
+    'mytext' => '',
+  ))->execute();
+}
+*/
+
+?>

@@ -1,0 +1,28 @@
+<?php
+/**
+* Implement hook_schema
+*/
+
+function new_product_schema(){
+$schema = array();
+$schema['product'] = array('description'=>'table for new product',
+  'fields'=>array(
+     'pid' => array(
+      'description' => 'primary key',
+      'type'=> 'serial',
+      'unsigned'=> TRUE,
+      'not null' => TRUE,),
+      'pname'=> array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,),
+    'img_path' => array(
+        'type' => 'varchar',
+        'length'=>255,
+        'default' => 0,
+        'description' => 'image path',
+      ),
+    ),
+    'primary key'=>array('pid'),
+    );
+}
